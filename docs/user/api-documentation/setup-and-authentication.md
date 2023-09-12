@@ -31,6 +31,48 @@ Enabling the CIPP API requires the following:
   10. After you've selected the user, click "Save" to assign the role.
 * After enablement of the API a new application will be created in your tenant.
 
+### Manually enabling the API
+If your application tenant is different to your CIPP-SAM tenant, you will need to setup the API manually.
+
+* Create the App Registration:
+  1. Sign in to the Azure portal: [https://portal.azure.com/](https://portal.azure.com/)
+  2. Navigate to Azure Active Directory -> App Registrations.
+  3. At the top, click + New Registration. Enter;
+     * Name: CIPP-API
+     * Single Tenant
+     * Redirect Uri:
+       * Platform: Web
+       * Uri: https://<CIPPInstance>>.azurewebsites.net/.auth/login/aad/callback
+  4. Click Register
+  5. In the left-hand menu choose Authentication
+  6. Check ID tokens (used for implicit and hybrid flows)
+  7. In the left-hand menu choose Overview and copy the Application ID
+  8. In the left-hand menu choose Expose an API.
+  9. Click Add a scope. Enter;
+     * Application ID URI: api://<<Application ID>>
+     * Scope name: user_impersonation
+     * Who can consent? Admins and users
+     * Admin consent display name: Access CIPP-API
+     * Admin consent description: Access CIPP-API
+  10. Click Add scope to save
+  11. Go to Certificates & secrets
+  12. Click New Client secret
+  13. Note down the Value and keep it safe together with the Application ID and Tenant ID from the Overview tab
+
+* Add the Identity Provider to Function App
+  1. Sign in to the Azure portal: [https://portal.azure.com/](https://portal.azure.com/)
+  2. Locate the CIPP Function App, which should be named cipp#####
+  3. Choose the Authentication tab on the left hand side
+  4. Click Add provider
+  5. From the drop-down menu choose Microsoft. Enter;
+     * Tenant type: Workforce
+     * App registration type: Provide the details of an existing app registration
+     * Application ID: Appplication ID noted from step above
+     * Client secret: Leave blank
+     * Issuer URL: https://sts.windows.net/<<TenantId>>/v2.0
+     * Allowed token audiences: api://<<ApplicationID>>
+   6. Click Create
+
 ### Authentication
 
 CIPP uses OAuth authentication to be able to connect to the API using your Application ID and secret. You can use the PowerShell example below to connect to the API
